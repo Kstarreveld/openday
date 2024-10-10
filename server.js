@@ -19,7 +19,7 @@ app.listen(port, () => {
 
 const readFileContent = filePath => {
     try {
-        return fs.readFileSync(filePath, 'utf8');
+        return fs.readFileSync(filePath, 'utf8').trim();
     } 
     catch (err) {
         console.error("Error:", err);
