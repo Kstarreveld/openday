@@ -17,9 +17,6 @@ app.listen(port, () => {
 }); 
   */
 
-// This line is from the Node.js HTTPS documentation.
-const fs = require('fs');
-
 const readFileContent = filePath => fs.readFile(filePath, 'utf8', (err, data) => 
     err ? console.error("Error:", err) : console.log("File content:", data)
 );
