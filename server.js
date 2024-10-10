@@ -25,8 +25,8 @@ const readFileContent = filePath => fs.readFile(filePath, 'utf8', (err, data) =>
 var folder = readFileContent(process.env.CERTFOLDER + "DEFAULT");
 
 var options = {
-  key: fs.readFileSync(process.env.CERTFOLDER + process.env.PRVKEYFILE),
-  cert: fs.readFileSync(process.env.CERTFOLDER + process.env.PUBKEYFILE)
+  key: fs.readFileSync(process.env.CERTFOLDER + folder + "\\" + process.env.PRVKEYFILE),
+  cert: fs.readFileSync(process.env.CERTFOLDER + folder + "\\" + process.env.PUBKEYFILE)
 };
 
 // Create an HTTPS service identical to the HTTP service.
