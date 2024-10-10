@@ -18,9 +18,18 @@ app.listen(port, () => {
   */
 
 // This line is from the Node.js HTTPS documentation.
+const fs = require('fs');
+
+const readFileContent = filePath => fs.readFile(filePath, 'utf8', (err, data) => 
+    err ? console.error("Error:", err) : console.log("File content:", data)
+);
+
+// Replace 'your-file.txt' with the path to the file you want to read
+var folder = readFileContent(process.env.CERTFOLDER + "DEFAULT");
+
 var options = {
-  key: fs.readFileSync(process.env.PRVKEY),
-  cert: fs.readFileSync(process.env.PUBKEY)
+  key: fs.readFileSync(process.env.CERTFOLDER + process.env.PRVKEYFILE),
+  cert: fs.readFileSync(process.env.CERTFOLDER + process.env.PUBKEYFILE)
 };
 
 // Create an HTTPS service identical to the HTTP service.
