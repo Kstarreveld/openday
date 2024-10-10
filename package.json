@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "axios": "^1.7.7",
+    "body-parser": "^1.20.3",
+    "dir": "^0.1.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "form-data": "^4.0.0",
+    "fs": "^0.0.1-security",
+    "fs-extra": "^11.2.0",
+    "multer": "^1.4.5-lts.1"
+  }
+}

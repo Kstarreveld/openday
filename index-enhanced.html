@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Face Expression Recognition with Face++</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            font-family: Roboto, "Segoe UI Emoji";
+            color: #343469;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            background-image: url('glossymetalDeltion4.png')
+        }
+
+        .container {
+            
+            /*background: url('path-to-your-deltion-logo.jpg') no-repeat center center;
+            background-size: cover;*/
+           margin: 50px;
+            display: flex;
+            gap: 20px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        video, canvas {
+            border-radius: 10px;
+            border: 2px solid #ccc;
+            width: 640px;
+            height: 480px;
+        }
+
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            max-width: 300px;
+        }
+
+        .result-container p {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        footer {
+            position: fixed; 
+            bottom: 0;
+           text-align: center;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title-container">
+
+            <div class="title">DELTION AI</div>
+            <div class="title">Real-time Face Expression Recognition</div>
+        </div>
+        <video id="video" autoplay></video>
+        <canvas id="canvas"></canvas>
+        <div class="result-container">
+            <p id="result"></p>
+            <button id="stop" onClick="StopCapturing()">STOP/START</button>
+        </div>
+        
+    
+    </div>
+    <footer style="display:block">&copy; 2024 Koos Starreveld for Deltion College</footer>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const resultDiv = document.getElementById('result');
+        let handle = 0;
+
+        function StopCapturing()
+        {
+            if ( handle == 0 )
+            {
+                 navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        video.srcObject = stream;
+
+                        // Start capturing the image every x second
+                    handle =  setInterval(captureAndSendImage, 3000); // Capture every x second
+                    })
+                    .catch(err => console.error('Error accessing webcam:', err));
+            }
+            else {
+                clearInterval(handle);
+                    handle = 0;
+            }
+
+        }
+        // Start webcam video
+     
+
+        // Capture the image and send it to Face++ API
+        function captureAndSendImage() {
+            // Capture video frame in canvas
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Get the image data as base64
+            const imageData = canvas.toDataURL('image/jpeg');
+            const blob = dataURItoBlob(imageData);
+
+            // Call Face++ API with the image
+            analyzeFace(blob);
+        }
+
+        // Convert data URI to Blob
+        function dataURItoBlob(dataURI) {
+            const byteString = atob(dataURI.split(',')[1]);
+            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], { type: mimeString });
+        }
+
+        async function analyzeFace(blob) {
+            const formData = new FormData();
+            formData.append('image_file', blob);
+
+            try {
+                const response = await fetch('/analyze-face', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayResult(data);
+                } else {
+                    console.error('Server Error:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+
+        // Display the results and draw landmarks on the face
+        function displayResult(data) {
+            resultDiv.innerHTML = ''; // Clear previous results
+
+            if (data.faces.length > 0) {
+                const faceAttributes = data.faces[0].attributes;
+                const landmarks = data.faces[0].landmark;
+                const gender = faceAttributes.gender.value;
+                const age = faceAttributes.age.value;
+                const emotion = getDominantEmotion(faceAttributes.emotion);
+
+                resultDiv.innerHTML = `
+                    <p><strong>Gender:</strong> ${gender}</p>
+                    <p><strong>Age:</strong> ${age}</p>
+                    <p><strong>Emotion:</strong> ${emotion}</p>
+                `;
+
+                drawLandmarks(landmarks);
+            } else {
+                resultDiv.innerHTML = '<p>No face detected.</p>';
+            }
+        }
+
+        // Get the most dominant emotion from the response
+        function getDominantEmotion(emotions) {
+            const emotionScores = Object.entries(emotions);
+            return emotionScores.reduce((a, b) => a[1] > b[1] ? a : b)[0];
+        }
+
+        // Draw the facial landmarks on the canvas
+        function drawLandmarks(landmarks) {
+            context.strokeStyle = 'green';
+            context.lineWidth = 2;
+
+            // Draw circles around the key points
+            for (let point in landmarks) {
+                const { x, y } = landmarks[point];
+                context.beginPath();
+                context.arc(x, y, 3, 0, 2 * Math.PI);
+                context.stroke();
+            }
+        }
+    </script>
+  
+</body>
+</html>
