@@ -1,41 +1,48 @@
-var express = require('express');
-var https = require('https');
-var fs = require('fs');
-var app = express();
+require('dotenv').config();
 
-var indexRouter = require('./index');
+const express = require('express');
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
 
+const indexRouter = require('./index');
+
+const app = express();
+const port = process.env.PORT || 3000;
+const certFolder = process.env.CERTFOLDER;
+const privateKeyFile = process.env.PRVKEYFILE;
+const publicKeyFile = process.env.PUBKEYFILE;
+
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
-app.use(express.static('public'));
 
+function loadHttpsOptions() {
+  if (!certFolder || !privateKeyFile || !publicKeyFile) {
+    return null;
+  }
 
-const port = 3000;
+  const keyPath = path.join(certFolder, privateKeyFile);
+  const certPath = path.join(certFolder, publicKeyFile);
 
- /*
-app.listen(port, () => {
-    console.log(`Server running at port:${port}`);
-}); 
-  */
+  if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
+    return null;
+  }
 
-const readFileContent = filePath => {
-    try {
-        return fs.readFileSync(filePath, 'utf8').trim();
-    } 
-    catch (err) {
-        console.error("Error:", err);
-    }
+  return {
+    key: fs.readFileSync(keyPath),
+    cert: fs.readFileSync(certPath),
+  };
 }
 
-// Replace 'your-file.txt' with the path to the file you want to read
-var folder = readFileContent(process.env.CERTFOLDER + "DEFAULT");
+const httpsOptions = loadHttpsOptions();
 
-var options = {
-  key: fs.readFileSync(process.env.CERTFOLDER + folder + "/" + process.env.PRVKEYFILE),
-  cert: fs.readFileSync(process.env.CERTFOLDER + folder + "/" + process.env.PUBKEYFILE)
-};
+if (httpsOptions) {
+  https.createServer(httpsOptions, app).listen(port, () => {
+    console.log(`HTTPS server started on port ${port}`);
+  });
+}
 
-// Create an HTTPS service identical to the HTTP service.
-https.createServer(options, app).listen(port,()=> 
-{
-    console.log(`Server started on port ${port}`);
+const httpPort = httpsOptions ? Number(process.env.HTTP_PORT || port + 1) : port;
+app.listen(httpPort, () => {
+  console.log(`HTTP server started on port ${httpPort}`);
 });

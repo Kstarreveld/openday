@@ -1,71 +1,44 @@
 const express = require('express');
-var router = express.Router();
 const multer = require('multer');
 const axios = require('axios');
-const bodyParser = require('body-parser');
 const path = require('path');
-const dotenv = require('dotenv').config();
 const FormData = require('form-data');
 const fs = require('fs');
-const fsExtra = require('fs-extra')
+const fsp = require('fs/promises');
 
-
-// Replace these with your Face++ API details
-const apiKey    =  process.env.APIKEY;
-const apiSecret = process.env.APISECRET;
-const apiEndpoint = process.env.APIENDPOINT;
-//console.log( " API : " + apiKey + " secr: " + apiSecret + "endpoint: " + apiEndpoint);
-       
-// Use body-parser to parse incoming requests
-router.use(bodyParser.urlencoded({ extended: true }));
-router.use(bodyParser.json());
-
-
-// Set up multer for file uploads (handling image uploads)
+const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
+const apiKey = process.env.APIKEY;
+const apiSecret = process.env.APISECRET;
+const apiEndpoint = process.env.APIENDPOINT;
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-    res.sendFile(path.join(__dirname, '/index-enhanced.html'));
-});
-
-// POST route to handle image upload and Face++ API call
 router.post('/analyze-face', upload.single('image_file'), async (req, res) => {
-    const imagePath = req.file.path; // Get the uploaded image file path
+  if (!req.file) {
+    return res.status(400).json({ error: 'No image uploaded' });
+  }
 
-    try {
-       // console.log( " API : " + apiKey + " secr: " + apiSecret + "endpoint: " + apiEndpoint);
-        const formData = new FormData();
-        formData.append('api_key', apiKey);
-        formData.append('api_secret', apiSecret);
-        formData.append('image_file', fs.createReadStream(imagePath)); // Send the image
-        formData.append('return_attributes', 'gender,age,emotion,facequality');
-        formData.append('return_landmark', 1);
+  const imagePath = req.file.path;
 
-        // Send the request to Face++ API
-        const response = await axios.post(apiEndpoint, formData, {
-            headers: {
-                ...formData.getHeaders(),
-            },
-        });
-        // Return the result from the Face++ API to the client
-        res.json(response.data);
+  try {
+    const formData = new FormData();
+    formData.append('api_key', apiKey);
+    formData.append('api_secret', apiSecret);
+    formData.append('image_file', fs.createReadStream(imagePath));
+    formData.append('return_attributes', 'gender,age,emotion,facequality');
+    formData.append('return_landmark', 1);
 
-        let dir = "./uploads";
-        await fsExtra.emptyDir(dir);
-       
+    const response = await axios.post(apiEndpoint, formData, {
+      headers: formData.getHeaders(),
+    });
 
-    } catch (error) {
-        console.error('Error calling Face++ API:', error);
-        res.status(500).json({ error: 'Failed to analyze face' });
-    }
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error calling Face++ API:', error.message);
+    res.status(500).json({ error: 'Failed to analyze face' });
+  } finally {
+    await fsp.unlink(imagePath).catch(() => {});
+  }
 });
-
-
-
-
-
-
 
 module.exports = router;
