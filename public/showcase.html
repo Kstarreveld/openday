@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Face++ Lab &middot; Deltion AI</title>
+  <link rel="stylesheet" href="/css/showcase.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">D</span>
+        <span><strong>DELTION AI</strong><small>Face++ capability lab</small></span>
+      </a>
+      <a class="back-link" href="/">&larr; Live camera</a>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">SECOND DEMO</p>
+        <h1>See what a face can tell a model.</h1>
+        <p>Explore detailed attributes and compare two portraits using the same Face++ service as the live camera.</p>
+        <div class="privacy-note"><strong>Privacy:</strong> images are sent to Face++ for analysis and removed from this server immediately afterward.</div>
+      </section>
+
+      <nav class="mode-switch" role="tablist" aria-label="Face++ demos">
+        <button id="analysis-tab" class="mode-button is-active" type="button" role="tab" aria-selected="true" aria-controls="analysis-panel">Portrait analysis</button>
+        <button id="compare-tab" class="mode-button" type="button" role="tab" aria-selected="false" aria-controls="compare-panel">Face comparison</button>
+      </nav>
+
+      <section id="analysis-panel" class="demo-panel" role="tabpanel" aria-labelledby="analysis-tab">
+        <div class="panel-copy">
+          <p class="step">01 / ANALYZE</p>
+          <h2>Detailed portrait analysis</h2>
+          <p>Detect every face and visualize landmarks, expression, pose, image quality, gaze, eye state, mouth state, and skin indicators returned by the API.</p>
+
+          <div class="source-switch" aria-label="Portrait source">
+            <button id="upload-source-button" class="source-button is-active" type="button" aria-pressed="true">Upload photo</button>
+            <button id="camera-source-button" class="source-button" type="button" aria-pressed="false">Use webcam</button>
+          </div>
+
+          <div id="upload-source-panel">
+            <label class="drop-zone" id="analysis-drop" for="analysis-file">
+              <input id="analysis-file" type="file" accept="image/jpeg,image/png,image/webp">
+              <span class="drop-icon" aria-hidden="true">+</span>
+              <strong>Choose a portrait</strong>
+              <small>JPEG, PNG, or WebP</small>
+            </label>
+          </div>
+
+          <div id="camera-source-panel" class="camera-source" hidden>
+            <div id="camera-stage" class="camera-stage is-idle">
+              <video id="camera-video" autoplay playsinline muted></video>
+              <div class="camera-placeholder">Open the webcam when you are ready.</div>
+            </div>
+            <div class="camera-actions">
+              <button id="start-camera-button" class="secondary-button" type="button">Open webcam</button>
+              <button id="capture-photo-button" class="capture-button" type="button" hidden>
+                <span aria-hidden="true"></span> Take photo
+              </button>
+            </div>
+            <p id="camera-status" class="camera-status" role="status">The camera is only active while framing your photo.</p>
+          </div>
+          <button id="analyze-button" class="primary-button" type="button" disabled>Analyze portrait</button>
+          <p id="analysis-error" class="error" role="alert"></p>
+        </div>
+
+        <div class="visual-column">
+          <div id="analysis-visual" class="image-stage is-empty">
+            <img id="analysis-preview" alt="Selected portrait preview">
+            <canvas id="analysis-canvas" aria-label="Detected face landmarks"></canvas>
+            <div class="stage-placeholder">Your analyzed portrait appears here</div>
+          </div>
+          <div id="analysis-results" class="results" aria-live="polite">
+            <div class="result-empty">Choose a portrait to begin.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="compare-panel" class="demo-panel compare-panel" role="tabpanel" aria-labelledby="compare-tab" hidden>
+        <div class="panel-copy">
+          <p class="step">02 / COMPARE</p>
+          <h2>1:1 face comparison</h2>
+          <p>Compare the largest face in each image. Face++ returns a confidence score plus thresholds at several false-match rates.</p>
+          <div class="comparison-explainer">
+            <span>Confidence answers “how similar?”</span>
+            <span>Thresholds put that score in context.</span>
+          </div>
+          <button id="compare-button" class="primary-button" type="button" disabled>Compare faces</button>
+          <p id="compare-error" class="error" role="alert"></p>
+        </div>
+
+        <div class="compare-workspace">
+          <div class="portrait-pair">
+            <label class="portrait-slot" id="first-drop" for="first-file">
+              <input id="first-file" type="file" accept="image/jpeg,image/png,image/webp">
+              <img id="first-preview" alt="First comparison portrait">
+              <span class="portrait-placeholder"><b>A</b><strong>First portrait</strong><small>Click to choose</small></span>
+            </label>
+            <div class="versus" aria-hidden="true">VS</div>
+            <label class="portrait-slot" id="second-drop" for="second-file">
+              <input id="second-file" type="file" accept="image/jpeg,image/png,image/webp">
+              <img id="second-preview" alt="Second comparison portrait">
+              <span class="portrait-placeholder"><b>B</b><strong>Second portrait</strong><small>Click to choose</small></span>
+            </label>
+          </div>
+          <div id="compare-results" class="match-card" aria-live="polite">
+            <div class="result-empty">Select two portraits to calculate similarity.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>&copy; 2026 Koos Starreveld for Deltion College</footer>
+  </div>
+  <script src="/js/showcase.js"></script>
+</body>
+</html>

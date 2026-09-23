@@ -16,7 +16,13 @@
       </div>
     </header>
 
-    <main class="workspace">
+    <nav class="tabs" role="tablist" aria-label="Application views">
+      <button class="tab is-active" id="camera-tab" type="button" role="tab" aria-selected="true" aria-controls="camera-view">Camera</button>
+      <button class="tab" id="output-tab" type="button" role="tab" aria-selected="false" aria-controls="output-view">API output <span id="face-count-badge" class="tab-badge" hidden>0</span></button>
+      <a class="tab" href="/showcase.html">Face++ Lab</a>
+    </nav>
+
+    <main id="camera-view" class="workspace tab-view" role="tabpanel" aria-labelledby="camera-tab">
       <section class="panel media" aria-label="Camera feeds">
         <div class="feed">
           <p class="feed-label">Live camera</p>
@@ -63,6 +69,32 @@
           <p id="error" class="error" role="status"></p>
         </div>
       </aside>
+    </main>
+
+    <main id="output-view" class="output-view tab-view" role="tabpanel" aria-labelledby="output-tab" hidden>
+      <section class="panel output-panel">
+        <div class="output-head">
+          <div>
+            <p class="kicker output-kicker">LATEST ANALYSIS</p>
+            <h2>Complete API output</h2>
+            <p id="output-summary" class="hint">Start the camera to see all returned face attributes and landmarks.</p>
+          </div>
+          <div id="output-time" class="output-time">No result yet</div>
+        </div>
+
+        <div id="response-meta" class="response-meta" hidden></div>
+        <div id="faces-output" class="faces-output">
+          <div class="empty-output">
+            <strong>Waiting for an analysis</strong>
+            <span>The full response will appear here after the first frame is processed.</span>
+          </div>
+        </div>
+
+        <details id="raw-response" class="raw-response" hidden>
+          <summary>Raw JSON response</summary>
+          <pre id="raw-json"></pre>
+        </details>
+      </section>
     </main>
 
     <footer class="site-footer">&copy; 2026 Koos Starreveld for Deltion College</footer>
