@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Human Lab &middot; Deltion AI</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/human.css">
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="kicker">DELTION AI / HUMAN LAB</p>
+      <h1>Face analysis, right in your browser.</h1>
+      <p class="lede">Explore facial landmarks, age and gender estimates, and expression scores with the Human library.</p>
+    </header>
+
+    <nav class="tabs human-nav" aria-label="Demo pages">
+      <a class="tab" href="/">Face++ Camera</a>
+      <a class="tab" href="/showcase.html">Face++ Lab</a>
+      <a class="tab is-active" href="/human.html" aria-current="page">Human Lab</a>
+    </nav>
+
+    <main>
+      <div class="local-note"><strong>Local analysis. No API key or call quota.</strong> Camera images stay in this browser. The library and models download on first use, so an internet connection is needed to get started.</div>
+
+      <div class="workspace human-workspace">
+        <section class="panel human-camera" aria-label="Camera and face landmarks">
+          <div class="feed-label"><span>Live face analysis</span><span id="face-count">0 faces</span></div>
+          <div class="stage human-stage">
+            <video id="human-video" autoplay playsinline muted hidden></video>
+            <canvas id="human-canvas" aria-label="Camera image with detected face landmarks"></canvas>
+            <div id="human-placeholder" class="placeholder">Start the camera to explore Human.</div>
+          </div>
+          <div class="human-camera-footer">
+            <label><input id="show-landmarks" type="checkbox" checked> Show landmarks</label>
+            <span id="inference-time">Waiting for a frame</span>
+          </div>
+        </section>
+
+        <aside class="panel sidebar">
+          <div class="sidebar-head">
+            <div><h2>Latest result</h2><p class="hint">Estimates for the largest face.</p></div>
+            <span id="human-status" class="status-chip" role="status">Idle</span>
+          </div>
+          <div class="metrics">
+            <div class="metric"><span>Estimated age</span><strong id="human-age">&mdash;</strong></div>
+            <div class="metric"><span>Gender estimate</span><strong id="human-gender">&mdash;</strong></div>
+            <div class="metric emotion"><span>Top expression</span><strong id="human-emotion">&mdash;</strong></div>
+          </div>
+          <div><h3 class="human-subheading">Expression scores</h3><div id="emotion-scores" class="emotion-scores"><p class="hint">Scores appear when a face is detected.</p></div></div>
+          <p class="hint">These are model predictions. Facial expressions do not establish how someone feels.</p>
+          <div class="controls">
+            <button id="human-toggle" class="btn" type="button">Start camera</button>
+            <p id="human-progress" class="hint" role="status">Models load when you start the camera. The first start may take a moment.</p>
+            <p id="human-error" class="error" role="alert"></p>
+          </div>
+        </aside>
+      </div>
+
+      <section class="panel human-output" aria-labelledby="human-output-title">
+        <div class="output-head"><div><p class="kicker output-kicker">ON-DEVICE RESULTS</p><h2 id="human-output-title">Detected faces</h2></div><span id="human-updated" class="output-time">No result yet</span></div>
+        <div id="human-faces" class="human-faces"><p class="hint">Face details appear here during analysis.</p></div>
+        <details id="human-raw" class="raw-response"><summary>Raw Human result</summary><pre id="human-json">No result yet.</pre></details>
+      </section>
+    </main>
+    <footer class="site-footer">Powered by <a href="https://github.com/vladmandic/human" target="_blank" rel="noopener noreferrer">Human</a> &middot; &copy; 2026 Koos Starreveld for Deltion College</footer>
+  </div>
+  <script src="/js/human.js" defer></script>
+</body>
+</html>

@@ -8,7 +8,7 @@ const path = require('path');
 const indexRouter = require('./index');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 const certFolder = process.env.CERTFOLDER;
 const privateKeyFile = process.env.PRVKEYFILE;
 const publicKeyFile = process.env.PUBKEYFILE;

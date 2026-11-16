@@ -118,14 +118,16 @@ async function analyzeFace(blob) {
 
   try {
     const response = await fetch("/analyze-face", { method: "POST", body: formData });
-    if (!response.ok) throw new Error(response.statusText);
-
-    const data = await response.json();
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(data?.error || `Face analysis failed (HTTP ${response.status}).`);
+    }
+    if (!data) throw new Error("The server returned an invalid response. Try again.");
     displayResult(data);
     setError("");
   } catch (error) {
     console.error("Error:", error);
-    setError("Could not analyze this frame.");
+    setError(error.message || "Could not analyze this frame.");
   } finally {
     isBusy = false;
     if (isCapturing()) setStatus("Live", "is-live");

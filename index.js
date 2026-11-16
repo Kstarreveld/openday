@@ -12,6 +12,33 @@ const apiKey = process.env.APIKEY;
 const apiSecret = process.env.APISECRET;
 const apiEndpoint = process.env.APIENDPOINT;
 
+function sendFaceApiError(res, error, operation) {
+  const status = error.response?.status;
+  const providerMessage = error.response?.data?.error_message;
+  const requestId = error.response?.data?.request_id;
+  let reason;
+
+  if (typeof providerMessage === 'string' && providerMessage.trim()) {
+    reason = providerMessage;
+  } else if (status) {
+    reason = 'The provider did not return a specific error reason.';
+  } else if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+    reason = 'The request to Face++ timed out. Try again.';
+  } else if (error.request) {
+    reason = `No response received from Face++. Check the server network connection${error.code ? ` (${error.code})` : ''}.`;
+  } else {
+    reason = 'The server could not prepare the Face++ request. Check the API configuration.';
+  }
+
+  const message = `Face++ ${operation} failed${status ? ` (HTTP ${status})` : ''}: ${reason}`;
+  console.error(message, requestId ? { request_id: requestId } : '');
+  res.status(502).json({
+    error: message,
+    ...(status ? { provider_status: status } : {}),
+    ...(requestId ? { request_id: requestId } : {}),
+  });
+}
+
 function apiUrl(operation) {
   const url = new URL(apiEndpoint);
   url.pathname = url.pathname.replace(/\/[^/]+$/, `/${operation}`);
@@ -47,9 +74,7 @@ router.post('/analyze-face', upload.single('image_file'), async (req, res) => {
 
     res.json(response.data);
   } catch (error) {
-    console.error('Error calling Face++ API:', error.message);
-    const providerMessage = error.response?.data?.error_message;
-    res.status(502).json({ error: providerMessage || 'Failed to analyze face' });
+    sendFaceApiError(res, error, 'face analysis');
   } finally {
     await fsp.unlink(imagePath).catch(() => {});
   }
@@ -83,11 +108,7 @@ router.post(
 
       res.json(response.data);
     } catch (error) {
-      console.error('Error calling Face++ Compare API:', error.message);
-      const providerMessage = error.response?.data?.error_message;
-      res.status(502).json({
-        error: providerMessage || 'Failed to compare faces',
-      });
+      sendFaceApiError(res, error, 'face comparison');
     } finally {
       await removeUploads([firstImage, secondImage]);
     }
